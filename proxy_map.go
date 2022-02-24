@@ -137,7 +137,7 @@ func (m *Map) AddInterceptor(ctx context.Context, interceptor interface{}) (stri
 		return "", err
 	} else {
 		request := codec.EncodeMapAddInterceptorRequest(m.name, interceptorData)
-		if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+		if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 			return "", err
 		} else {
 			return codec.DecodeMapAddInterceptorResponse(response), nil
@@ -173,7 +173,7 @@ func (m *Map) AggregateWithPredicate(ctx context.Context, agg aggregate.Aggregat
 // Clear deletes all entries one by one and fires related events.
 func (m *Map) Clear(ctx context.Context) error {
 	request := codec.EncodeMapClearRequest(m.name)
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 
@@ -198,7 +198,7 @@ func (m *Map) ContainsValue(ctx context.Context, value interface{}) (bool, error
 		return false, err
 	} else {
 		request := codec.EncodeMapContainsValueRequest(m.name, valueData)
-		if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+		if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 			return false, err
 		} else {
 			return codec.DecodeMapContainsValueResponse(response), nil
@@ -240,7 +240,7 @@ func (m *Map) Evict(ctx context.Context, key interface{}) (bool, error) {
 // EvictAll deletes all entries without firing related events.
 func (m *Map) EvictAll(ctx context.Context) error {
 	request := codec.EncodeMapEvictAllRequest(m.name)
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 
@@ -251,7 +251,7 @@ func (m *Map) ExecuteOnEntries(ctx context.Context, entryProcessor interface{}) 
 		return nil, err
 	}
 	request := codec.EncodeMapExecuteOnAllKeysRequest(m.name, processorData)
-	resp, err := m.invokeOnRandomTarget(ctx, request, nil)
+	resp, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +296,7 @@ func (m *Map) ExecuteOnKeys(ctx context.Context, entryProcessor interface{}, key
 		return nil, err
 	}
 	request := codec.EncodeMapExecuteOnKeysRequest(m.name, processorData, keysDataList)
-	resp, err := m.invokeOnRandomTarget(ctx, request, nil)
+	resp, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +315,7 @@ func (m *Map) ExecuteOnEntriesWithPredicate(ctx context.Context, entryProcessor 
 		return nil, err
 	}
 	request := codec.EncodeMapExecuteWithPredicateRequest(m.name, processorData, predData)
-	resp, err := m.invokeOnRandomTarget(ctx, request, nil)
+	resp, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func (m *Map) ExecuteOnEntriesWithPredicate(ctx context.Context, entryProcessor 
 // Flush flushes all the local dirty entries.
 func (m *Map) Flush(ctx context.Context) error {
 	request := codec.EncodeMapFlushRequest(m.name)
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 
@@ -425,7 +425,7 @@ func (m *Map) GetAll(ctx context.Context, keys ...interface{}) ([]types.Entry, e
 // GetEntrySet returns a clone of the mappings contained in this map.
 func (m *Map) GetEntrySet(ctx context.Context) ([]types.Entry, error) {
 	request := codec.EncodeMapEntrySetRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return nil, err
 	} else {
 		return m.convertPairsToEntries(codec.DecodeMapEntrySetResponse(response))
@@ -438,7 +438,7 @@ func (m *Map) GetEntrySetWithPredicate(ctx context.Context, predicate predicate.
 		return nil, err
 	} else {
 		request := codec.EncodeMapEntriesWithPredicateRequest(m.name, predData)
-		if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+		if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 			return nil, err
 		} else {
 			return m.convertPairsToEntries(codec.DecodeMapEntriesWithPredicateResponse(response))
@@ -491,7 +491,7 @@ func (m *Map) GetEntryView(ctx context.Context, key interface{}) (*types.SimpleE
 // GetKeySet returns keys contained in this map.
 func (m *Map) GetKeySet(ctx context.Context) ([]interface{}, error) {
 	request := codec.EncodeMapKeySetRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return nil, err
 	} else {
 		keyDatas := codec.DecodeMapKeySetResponse(response)
@@ -513,7 +513,7 @@ func (m *Map) GetKeySetWithPredicate(ctx context.Context, predicate predicate.Pr
 		return nil, err
 	} else {
 		request := codec.EncodeMapKeySetWithPredicateRequest(m.name, predicateData)
-		if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+		if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 			return nil, err
 		} else {
 			return m.convertToObjects(codec.DecodeMapKeySetWithPredicateResponse(response))
@@ -524,7 +524,7 @@ func (m *Map) GetKeySetWithPredicate(ctx context.Context, predicate predicate.Pr
 // GetValues returns a list clone of the values contained in this map.
 func (m *Map) GetValues(ctx context.Context) ([]interface{}, error) {
 	request := codec.EncodeMapValuesRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return nil, err
 	} else {
 		return m.convertToObjects(codec.DecodeMapValuesResponse(response))
@@ -537,7 +537,7 @@ func (m *Map) GetValuesWithPredicate(ctx context.Context, predicate predicate.Pr
 		return nil, err
 	} else {
 		request := codec.EncodeMapValuesWithPredicateRequest(m.name, predicateData)
-		if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+		if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 			return nil, err
 		} else {
 			return m.convertToObjects(codec.DecodeMapValuesWithPredicateResponse(response))
@@ -548,7 +548,7 @@ func (m *Map) GetValuesWithPredicate(ctx context.Context, predicate predicate.Pr
 // IsEmpty returns true if this map contains no key-value mappings.
 func (m *Map) IsEmpty(ctx context.Context) (bool, error) {
 	request := codec.EncodeMapIsEmptyRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return false, err
 	} else {
 		return codec.DecodeMapIsEmptyResponse(response), nil
@@ -745,7 +745,7 @@ func (m *Map) RemoveAll(ctx context.Context, predicate predicate.Predicate) erro
 		return err
 	} else {
 		request := codec.EncodeMapRemoveAllRequest(m.name, predicateData)
-		_, err := m.invokeOnRandomTarget(ctx, request, nil)
+		_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 		return err
 	}
 }
@@ -758,7 +758,7 @@ func (m *Map) RemoveEntryListener(ctx context.Context, subscriptionID types.UUID
 // RemoveInterceptor removes the interceptor.
 func (m *Map) RemoveInterceptor(ctx context.Context, registrationID string) (bool, error) {
 	request := codec.EncodeMapRemoveInterceptorRequest(m.name, registrationID)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return false, nil
 	} else {
 		return codec.DecodeMapRemoveInterceptorResponse(response), nil
@@ -873,7 +873,7 @@ func (m *Map) SetWithTTLAndMaxIdle(ctx context.Context, key interface{}, value i
 // Size returns the number of entries in this map.
 func (m *Map) Size(ctx context.Context) (int, error) {
 	request := codec.EncodeMapSizeRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return 0, err
 	} else {
 		return int(codec.DecodeMapSizeResponse(response)), nil
@@ -943,7 +943,7 @@ func (m *Map) addIndex(ctx context.Context, indexConfig types.IndexConfig) error
 		return err
 	}
 	request := codec.EncodeMapAddIndexRequest(m.name, indexConfig)
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 
@@ -985,7 +985,7 @@ func (m *Map) loadAll(ctx context.Context, replaceExisting bool, keys ...interfa
 		}
 		request = codec.EncodeMapLoadGivenKeysRequest(m.name, keyDatas, replaceExisting)
 	}
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 
@@ -1159,7 +1159,7 @@ func (m *Map) tryRemove(ctx context.Context, key interface{}, timeout int64) (in
 }
 
 func (m *Map) aggregate(ctx context.Context, req *proto.ClientMessage, decoder func(message *proto.ClientMessage) *serialization.Data) (interface{}, error) {
-	resp, err := m.invokeOnRandomTarget(ctx, req, nil)
+	resp, err := m.InvokeOnRandomTarget(ctx, req, nil)
 	if err != nil {
 		return nil, err
 	}

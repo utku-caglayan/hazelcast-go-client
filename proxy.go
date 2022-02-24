@@ -164,7 +164,7 @@ func newProxy(
 
 func (p *proxy) create(ctx context.Context) error {
 	request := codec.EncodeClientCreateProxyRequest(p.name, p.serviceName)
-	if _, err := p.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if _, err := p.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return fmt.Errorf("error creating proxy: %w", err)
 	}
 	return nil
@@ -180,7 +180,7 @@ func (p *proxy) Destroy(ctx context.Context) error {
 	}
 	// destroy on cluster
 	request := codec.EncodeClientDestroyProxyRequest(p.name, p.serviceName)
-	if _, err := p.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if _, err := p.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return fmt.Errorf("error destroying proxy: %w", err)
 	}
 	return nil
@@ -270,7 +270,7 @@ func (p *proxy) invokeOnKey(ctx context.Context, request *proto.ClientMessage, k
 	}
 }
 
-func (p *proxy) invokeOnRandomTarget(ctx context.Context, request *proto.ClientMessage, handler proto.ClientMessageHandler) (*proto.ClientMessage, error) {
+func (p *proxy) InvokeOnRandomTarget(ctx context.Context, request *proto.ClientMessage, handler proto.ClientMessageHandler) (*proto.ClientMessage, error) {
 	now := time.Now()
 	return p.tryInvoke(ctx, func(ctx context.Context, attempt int) (interface{}, error) {
 		if attempt > 0 {

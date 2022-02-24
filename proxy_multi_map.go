@@ -126,7 +126,7 @@ func (m *MultiMap) AddEntryListener(ctx context.Context, config MultiMapEntryLis
 // Clear deletes all entries one by one and fires related events.
 func (m *MultiMap) Clear(ctx context.Context) error {
 	request := codec.EncodeMultiMapClearRequest(m.name)
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 
@@ -151,7 +151,7 @@ func (m *MultiMap) ContainsValue(ctx context.Context, value interface{}) (bool, 
 		return false, err
 	} else {
 		request := codec.EncodeMultiMapContainsValueRequest(m.name, valueData)
-		if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+		if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 			return false, err
 		} else {
 			return codec.DecodeMultiMapContainsValueResponse(response), nil
@@ -243,7 +243,7 @@ func (m *MultiMap) Get(ctx context.Context, key interface{}) ([]interface{}, err
 // GetEntrySet returns a clone of the mappings contained in this multi-map.
 func (m *MultiMap) GetEntrySet(ctx context.Context) ([]types.Entry, error) {
 	request := codec.EncodeMultiMapEntrySetRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return nil, err
 	} else {
 		return m.convertPairsToEntries(codec.DecodeMultiMapEntrySetResponse(response))
@@ -253,7 +253,7 @@ func (m *MultiMap) GetEntrySet(ctx context.Context) ([]types.Entry, error) {
 // GetKeySet returns keys contained in this map.
 func (m *MultiMap) GetKeySet(ctx context.Context) ([]interface{}, error) {
 	request := codec.EncodeMultiMapKeySetRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return nil, err
 	} else {
 		keyDatas := codec.DecodeMultiMapKeySetResponse(response)
@@ -272,7 +272,7 @@ func (m *MultiMap) GetKeySet(ctx context.Context) ([]interface{}, error) {
 // GetValues returns a list clone of the values contained in this map.
 func (m *MultiMap) GetValues(ctx context.Context) ([]interface{}, error) {
 	request := codec.EncodeMultiMapValuesRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return nil, err
 	} else {
 		return m.convertToObjects(codec.DecodeMultiMapValuesResponse(response))
@@ -384,7 +384,7 @@ func (m *MultiMap) RemoveEntryListener(ctx context.Context, subscriptionID types
 // Size returns the number of entries in this multi-map.
 func (m *MultiMap) Size(ctx context.Context) (int, error) {
 	request := codec.EncodeMultiMapSizeRequest(m.name)
-	if response, err := m.invokeOnRandomTarget(ctx, request, nil); err != nil {
+	if response, err := m.InvokeOnRandomTarget(ctx, request, nil); err != nil {
 		return 0, err
 	} else {
 		return int(codec.DecodeMultiMapSizeResponse(response)), nil
