@@ -93,7 +93,7 @@ func newFlakeIdGenerator(p *proxy, config FlakeIDGeneratorConfig, newBatchFn new
 
 func flakeIDBatchFromMemberFn(ctx context.Context, f *FlakeIDGenerator) (flakeIDBatch, error) {
 	request := codec.EncodeFlakeIdGeneratorNewIdBatchRequest(f.name, f.config.PrefetchCount)
-	resp, err := f.invokeOnRandomTarget(ctx, request, nil)
+	resp, err := f.InvokeOnRandomTarget(ctx, request, nil)
 	if err != nil {
 		return flakeIDBatch{}, err
 	}

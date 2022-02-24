@@ -143,7 +143,7 @@ func (m *proxyManager) getFlakeIDGenerator(ctx context.Context, name string) (*F
 }
 
 func (m *proxyManager) invokeOnRandomTarget(ctx context.Context, request *proto.ClientMessage, handler proto.ClientMessageHandler) (*proto.ClientMessage, error) {
-	return m.invocationProxy.invokeOnRandomTarget(ctx, request, handler)
+	return m.invocationProxy.InvokeOnRandomTarget(ctx, request, handler)
 }
 
 func (m *proxyManager) addDistributedObjectEventListener(ctx context.Context, handler DistributedObjectNotifiedHandler) (types.UUID, error) {

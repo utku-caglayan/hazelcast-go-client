@@ -179,7 +179,7 @@ func (pn *PNCounter) add(ctx context.Context, delta int64, getBeforeUpdate bool)
 
 func (pn *PNCounter) fetchMaxConfiguredReplicaCount(ctx context.Context) error {
 	req := codec.EncodePNCounterGetConfiguredReplicaCountRequest(pn.name)
-	resp, err := pn.invokeOnRandomTarget(ctx, req, nil)
+	resp, err := pn.InvokeOnRandomTarget(ctx, req, nil)
 	if err != nil {
 		return fmt.Errorf("getting configured replica count: %w", err)
 	}

@@ -82,7 +82,7 @@ func (m *ReplicatedMap) AddEntryListenerToKeyWithPredicate(ctx context.Context, 
 // Clear deletes all entries one by one and fires related events
 func (m *ReplicatedMap) Clear(ctx context.Context) error {
 	request := codec.EncodeReplicatedMapClearRequest(m.name)
-	_, err := m.invokeOnRandomTarget(ctx, request, nil)
+	_, err := m.InvokeOnRandomTarget(ctx, request, nil)
 	return err
 }
 

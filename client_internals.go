@@ -23,14 +23,21 @@ import (
 	"github.com/hazelcast/hazelcast-go-client/internal/cluster"
 	"github.com/hazelcast/hazelcast-go-client/internal/event"
 	"github.com/hazelcast/hazelcast-go-client/internal/invocation"
+	"github.com/hazelcast/hazelcast-go-client/internal/proto"
+	"github.com/hazelcast/hazelcast-go-client/internal/serialization"
 )
 
 type ClientInternal struct {
 	client *Client
+	*proxy
 }
 
+type Data = serialization.Data
+type ClientMessage = proto.ClientMessage
+type ClientMessageHandler = proto.ClientMessage
+
 func NewClientInternal(c *Client) *ClientInternal {
-	return &ClientInternal{client: c}
+	return &ClientInternal{client: c, proxy: c.proxyManager.invocationProxy}
 }
 
 func (ci *ClientInternal) ConnectionManager() *cluster.ConnectionManager {
