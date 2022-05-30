@@ -1,9 +1,4 @@
 Feature: Query fields of JSON values on a map via SQL JSON operators
-  As a Hazelcast user, I should be able to operate on maps
-  that already has JSON values
-  - by first creating a mapping, and then
-  - querying them by SQL statements with JSON operators
-
   Scenario: Query existing JSON values on a map
     Given there are following entries in a random map "m1"
       | int64 | json |
@@ -16,10 +11,20 @@ Feature: Query fields of JSON values on a map via SQL JSON operators
     """
     And I execute statement for "m1" with result "r1"
     """
-    SELECT JSON_QUERY(this, '$')
+    SELECT JSON_QUERY(this, '$.name')
     FROM "%s" ORDER BY __key DESC
     """
     Then "r1" should be
     |json|
-    |{"name":"jane","employeeID":1025,"email":"jane.doe@mail.com"}|
-    |{"name":"john","employeeID":1023,"email":"john.doe@mail.com"}|
+    |"jane"|
+    |"john"|
+  Scenario: Querying existing JSON values on a map without creating a mapping should fail
+    Given there are following entries in a random map "m1"
+      | string | json |
+      | should | {"name":"fail", "employeeID":1023, "email":"john.doe@mail.com"} |
+    When I execute statement for "m1" with result "r1"
+    """
+    SELECT JSON_QUERY(this, '$')
+    FROM "%s" ORDER BY __key DESC
+    """
+    Then "r1" should be a SQL error

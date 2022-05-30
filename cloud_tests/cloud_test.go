@@ -26,9 +26,16 @@ import (
 	"github.com/cucumber/godog"
 
 	"github.com/hazelcast/hazelcast-go-client"
+	"github.com/hazelcast/hazelcast-go-client/cloud_tests/provison"
 	"github.com/hazelcast/hazelcast-go-client/internal/it"
+	"github.com/hazelcast/hazelcast-go-client/logger"
 	"github.com/hazelcast/hazelcast-go-client/sql"
 )
+
+type SQLResultAndError struct {
+	result sql.Result
+	err    error
+}
 
 func thereIsRandomMapWithEntries(c context.Context, name string, t *godog.Table) (context.Context, error) {
 	var (
@@ -77,23 +84,27 @@ func iExecuteSQLStatementForMapSaveResult(c context.Context, mapName, varName st
 	r := ResourcesFromContext(c)
 	m := c.Value(mapName).(*hazelcast.Map)
 	result, err := r.client.SQL().Execute(c, fmt.Sprintf(s.Content, m.Name()))
-	if err != nil {
-		return c, fmt.Errorf("can not execute SQL statement: %w", err)
-	}
-	c = context.WithValue(c, varName, result)
+	c = context.WithValue(c, varName, SQLResultAndError{
+		result: result,
+		err:    err,
+	})
 	return c, nil
 }
 
-func assertSQLResult(ctx context.Context, resultVar string, t *godog.Table) error {
+func assertSQLResultWithData(ctx context.Context, resultVar string, t *godog.Table) error {
 	values, err := TableToValues(t)
 	if err != nil {
 		return fmt.Errorf("can not serialize table: %w", err)
 	}
-	r, ok := ctx.Value(resultVar).(sql.Result)
+	res, ok := ctx.Value(resultVar).(SQLResultAndError)
 	if !ok {
 		return errors.New("unexpected result type")
 	}
+	r := res.result
 	defer r.Close()
+	if res.err != nil {
+		return errors.New("unexpected error from SQL result")
+	}
 	if !r.IsRowSet() {
 		return errors.New("unexpected SQL result type")
 	}
@@ -134,6 +145,18 @@ func assertSQLResult(ctx context.Context, resultVar string, t *godog.Table) erro
 	return nil
 }
 
+func assertSQLResultWithError(ctx context.Context, resultVar string) error {
+	r, ok := ctx.Value(resultVar).(SQLResultAndError)
+	if !ok {
+		return errors.New("unexpected result type")
+	}
+	defer r.result.Close()
+	if r.err == nil {
+		return errors.New("expecting error, found nil")
+	}
+	return nil
+}
+
 func TestFeatures(t *testing.T) {
 	suite := godog.TestSuite{
 		TestSuiteInitializer: InitializeSuite,
@@ -150,9 +173,13 @@ func TestFeatures(t *testing.T) {
 }
 
 func InitializeSuite(suiteContext *godog.TestSuiteContext) {
-	// todo create cluster here
+	clusterAddr := provison.GetPublicAddress()
 	suiteContext.ScenarioContext().Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-		c, err := hazelcast.StartNewClient(ctx)
+		conf := hazelcast.Config{}
+		conf.Logger.Level = logger.OffLevel
+		conf.Cluster.Name = "amazon"
+		conf.Cluster.Network.SetAddresses(clusterAddr)
+		c, err := hazelcast.StartNewClientWithConfig(ctx, conf)
 		if err != nil {
 			return ctx, fmt.Errorf("can not create hazelcast client %w", err)
 		}
@@ -164,5 +191,6 @@ func InitializeScenario(sc *godog.ScenarioContext) {
 	sc.Step(`^there are following entries in a random map "([^"]*)"$`, thereIsRandomMapWithEntries)
 	sc.Step(`^I create a mapping for "([^"]*)"$`, iCreateMappingForMap)
 	sc.Step(`^I execute statement for "([^"]*)" with result "([^"]*)"$`, iExecuteSQLStatementForMapSaveResult)
-	sc.Step(`^"([^"]*)" should be$`, assertSQLResult)
+	sc.Step(`^"([^"]*)" should be$`, assertSQLResultWithData)
+	sc.Step(`^"([^"]*)" should be a SQL error`, assertSQLResultWithError)
 }
